@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Trends</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #selenium-output, #database-output {
+            margin-top: 20px;
+            padding: 0%;
+        }
+        #Saravanan h6{
+            margin-left: 0%;
+            gap: 20px;
+           margin: 4px;
+         padding: 4px;
+        }
+        #Saravanan{
+            display: flex;
+        }
+        #main{
+            
+            margin: 0%;
+            padding: 0%;
+        }
+        h1, h2, h3 {
+            color: #333;
+          
+        }
+        ul {
+            list-style-type: none;
+        }
+        li {
+            background: #f9f9f9;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        a {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        h1{
+            margin: 0%;
+            padding: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+    <h1>Twitter Trends Script By "Saravanan"</h1>
+    <div id="Saravanan">
+        <a href="https://github.com/saravanangithubgit/TwiterTrend.git"><h6>GitHub_DB</h6></a>
+        <a href="https://github.com/saravanangithubgit/Selenium.git"><h6>GitHub_Selenium</h6></a>
+        <a href="https://profile-saravananapp.web.app/"><h6>portfolio</h6></a>
+        </div>
+    </div>
+    
+    <button onclick="runScript()">Run Script</button>
+    <div id="selenium-output"></div>
+    <div id="database-output"></div>
+
+    <script>
+        async function runScript() {
+            const seleniumOutputDiv = document.getElementById('selenium-output');
+            const databaseOutputDiv = document.getElementById('database-output');
+            seleniumOutputDiv.innerHTML = 'Running script... Please wait.(it takes a few minutes to fetch all data from the database)';
+            databaseOutputDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/run-script');
+                const data = await response.json();
+
+                if (response.status === 500) {
+                    seleniumOutputDiv.innerHTML = `<h2>Error:</h2><p>${data.error}</p>`;
+                    databaseOutputDiv.innerHTML = '';
+                } else {
+                    // Display Selenium script output
+                    const seleniumData = data.selenium_data;
+                    const trendsList = seleniumData.trends.map(trend => `<li>${trend}</li>`).join('');
+                    seleniumOutputDiv.innerHTML = `
+                        <h2>These are the most happening topics as on ${seleniumData.currentTime}</h2>
+                        <ul>${trendsList}</ul>
+                        <p>The IP address used for this query was ${seleniumData.publicIp}.</p>
+                    `;
+                    
+                    // Display all data from the database
+                    const dbData = data.db_data;
+                    databaseOutputDiv.innerHTML = `
+                        <h3>Here's a JSON extract of this record from the database:</h3>
+                        <pre>${JSON.stringify(dbData, null, 2)}</pre>
+                        <a onclick="runScript()">Click here to run the query again.</a>
+                    `;
+                }
+            } catch (error) {
+                seleniumOutputDiv.innerHTML = `<h2>Error:</h2><p>${error.message}</p>`;
+                databaseOutputDiv.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
